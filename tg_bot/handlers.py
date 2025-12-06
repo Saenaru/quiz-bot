@@ -1,8 +1,8 @@
 import logging
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler, MessageHandler, filters, CommandHandler
+from shared import database as db
 from keyboards import get_main_keyboard
-import database as db
 
 logger = logging.getLogger(__name__)
 

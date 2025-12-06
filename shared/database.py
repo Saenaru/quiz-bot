@@ -1,23 +1,39 @@
 import sqlite3
 import logging
-from config import DB_FILE
+import os
 
 logger = logging.getLogger(__name__)
 
 def get_connection():
-    return sqlite3.connect(DB_FILE)
+    db_file = None
+    db_file = os.getenv('DB_FILE')
+
+    if not db_file:
+        db_file = 'quiz_bot.db'
+
+    if not os.path.isabs(db_file):
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(current_dir)
+        possible_locations = [
+            os.path.join(project_root, db_file),
+            os.path.join(current_dir, db_file),
+            db_file
+        ]
+        for location in possible_locations:
+            if os.path.exists(location):
+                db_file = location
+                break
+    logger.info(f"Используется база данных: {db_file}")
+    return sqlite3.connect(db_file)
 
 def get_or_create_user(user_id):
     conn = get_connection()
     cursor = conn.cursor()
-    
     cursor.execute('''
     SELECT user_id, score, correct_answers, total_questions, current_question_id 
     FROM user_stats WHERE user_id = ?
     ''', (user_id,))
-    
     result = cursor.fetchone()
-    
     if result:
         user_data = {
             'user_id': result[0],
@@ -32,7 +48,6 @@ def get_or_create_user(user_id):
         VALUES (?, 0, 0, 0)
         ''', (user_id,))
         conn.commit()
-        
         user_data = {
             'user_id': user_id,
             'score': 0,
@@ -40,7 +55,6 @@ def get_or_create_user(user_id):
             'total_questions': 0,
             'current_question_id': None,
         }
-    
     conn.close()
     return user_data
 
@@ -71,7 +85,6 @@ def update_user(user_id, username=None, first_name=None, last_name=None,
         current_correct = correct_answers if correct_answers is not None else 0
         current_total = total_questions if total_questions is not None else 0
         current_qid = current_question_id
-    
     cursor.execute('''
     INSERT OR REPLACE INTO user_stats 
     (user_id, username, first_name, last_name, score, correct_answers, total_questions, 
@@ -81,26 +94,22 @@ def update_user(user_id, username=None, first_name=None, last_name=None,
             CURRENT_TIMESTAMP)
     ''', (user_id, current_username, current_first_name, current_last_name, 
           current_score, current_correct, current_total, current_qid, current_qid))
-    
     conn.commit()
     conn.close()
 
 def save_answer_history(user_id, question_id, user_answer, is_correct):
     conn = get_connection()
     cursor = conn.cursor()
-    
     cursor.execute('''
     INSERT INTO question_history (user_id, question_id, user_answer, is_correct)
     VALUES (?, ?, ?, ?)
     ''', (user_id, question_id, user_answer, is_correct))
-    
     conn.commit()
     conn.close()
 
 def get_random_question(user_id, exclude_current=True):
     conn = get_connection()
     cursor = conn.cursor()
-    
     if exclude_current:
         cursor.execute('''
         SELECT q.question_id, q.question_text, q.answer_text 
@@ -124,9 +133,7 @@ def get_random_question(user_id, exclude_current=True):
         )
         ORDER BY RANDOM() LIMIT 1
         ''', (user_id, user_id))
-    
     result = cursor.fetchone()
-    
     if not result:
         cursor.execute('''
         SELECT question_id, question_text, answer_text FROM questions 
@@ -136,46 +143,38 @@ def get_random_question(user_id, exclude_current=True):
         ORDER BY RANDOM() LIMIT 1
         ''', (user_id,))
         result = cursor.fetchone()
-    
     if not result:
         cursor.execute('''
         SELECT question_id, question_text, answer_text FROM questions 
         ORDER BY RANDOM() LIMIT 1
         ''')
         result = cursor.fetchone()
-    
     conn.close()
-    
     if result:
         return {
             'id': result[0],
             'question': result[1],
             'answer': result[2]
         }
-    
     return None
 
 def get_current_question(user_id):
     conn = get_connection()
     cursor = conn.cursor()
-    
     cursor.execute('''
     SELECT q.question_id, q.question_text, q.answer_text
     FROM user_stats u
     LEFT JOIN questions q ON u.current_question_id = q.question_id
     WHERE u.user_id = ? AND u.current_question_id IS NOT NULL
     ''', (user_id,))
-    
     result = cursor.fetchone()
     conn.close()
-    
     if result:
         return {
             'id': result[0],
             'question': result[1],
             'answer': result[2]
         }
-    
     return None
 
 def clear_current_question(user_id):

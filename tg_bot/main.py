@@ -1,8 +1,16 @@
 import logging
+import sys
+import os
+
+# Добавляем путь к tg_bot в начало sys.path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from telegram import Update
 from telegram.ext import Application, CommandHandler
-from config import TOKEN
-from handlers import get_conversation_handler, help_command
+
+# Используем относительный импорт
+from .config import TOKEN
+from .handlers import get_conversation_handler, help_command
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -18,7 +26,7 @@ def main():
     application.add_handler(conv_handler)
     application.add_handler(CommandHandler('help', help_command))
     
-    logger.info("Бот запускается...")
+    logger.info("Telegram бот запускается...")
     
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
