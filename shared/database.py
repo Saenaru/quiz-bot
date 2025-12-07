@@ -4,6 +4,7 @@ import os
 
 logger = logging.getLogger(__name__)
 
+
 def get_connection():
     db_file = None
     db_file = os.getenv('DB_FILE')
@@ -25,6 +26,7 @@ def get_connection():
                 break
     logger.info(f"Используется база данных: {db_file}")
     return sqlite3.connect(db_file)
+
 
 def get_or_create_user(user_id):
     conn = get_connection()
@@ -58,6 +60,7 @@ def get_or_create_user(user_id):
     conn.close()
     return user_data
 
+
 def update_user(user_id, username=None, first_name=None, last_name=None, 
                score=None, correct_answers=None, total_questions=None, current_question_id=None):
     conn = get_connection()
@@ -66,9 +69,9 @@ def update_user(user_id, username=None, first_name=None, last_name=None,
     SELECT username, first_name, last_name, score, correct_answers, total_questions, current_question_id
     FROM user_stats WHERE user_id = ?
     ''', (user_id,))
-    
+
     result = cursor.fetchone()
-    
+
     if result:
         current_username = username if username is not None else result[0]
         current_first_name = first_name if first_name is not None else result[1]
@@ -97,6 +100,7 @@ def update_user(user_id, username=None, first_name=None, last_name=None,
     conn.commit()
     conn.close()
 
+
 def save_answer_history(user_id, question_id, user_answer, is_correct):
     conn = get_connection()
     cursor = conn.cursor()
@@ -106,6 +110,7 @@ def save_answer_history(user_id, question_id, user_answer, is_correct):
     ''', (user_id, question_id, user_answer, is_correct))
     conn.commit()
     conn.close()
+
 
 def get_random_question(user_id, exclude_current=True):
     conn = get_connection()
@@ -158,6 +163,7 @@ def get_random_question(user_id, exclude_current=True):
         }
     return None
 
+
 def get_current_question(user_id):
     conn = get_connection()
     cursor = conn.cursor()
@@ -177,18 +183,18 @@ def get_current_question(user_id):
         }
     return None
 
+
 def clear_current_question(user_id):
     conn = get_connection()
     cursor = conn.cursor()
-    
     cursor.execute('''
     UPDATE user_stats 
     SET current_question_id = NULL, question_assigned_at = NULL
     WHERE user_id = ?
     ''', (user_id,))
-    
     conn.commit()
     conn.close()
+
 
 def get_question_count():
     conn = get_connection()
