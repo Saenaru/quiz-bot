@@ -27,7 +27,8 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # Отредактировать .env файл, добавив токен бота
-TELEGRAM_TOKEN=ваш_токен_бота
+TELEGRAM_TOKEN=ваш_токен_тг_бота
+VK_TOKEN=ваш_токен_вк_бота
 DB_FILE=quiz_bot.db
 ```
 

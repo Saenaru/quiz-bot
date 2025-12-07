@@ -4,7 +4,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
-from .config import VK_TOKEN, VK_GROUP_ID
+from .config import VK_TOKEN
 from . import handlers
 
 
