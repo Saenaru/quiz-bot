@@ -2,6 +2,7 @@ import threading
 import logging
 import sys
 import os
+
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(project_root)
 sys.path.append(os.path.join(project_root, 'tg_bot'))
@@ -32,20 +33,21 @@ def run_vk_bot():
 def main():
     logger = logging.getLogger(__name__)
     logger.info("Запуск обоих ботов...")
-    telegram_thread = threading.Thread(
-        target=run_telegram_bot,
-        name="TelegramBotThread"
+    vk_thread = threading.Thread(
+        target=run_vk_bot,
+        name="VKBotThread"
     )
-    telegram_thread.daemon = True
-    telegram_thread.start()
-    logger.info("Telegram бот запущен в отдельном потоке")
+    vk_thread.daemon = True
+    vk_thread.start()
+    logger.info("VK бот запущен в отдельном потоке")
+
     try:
-        logger.info("Запуск VK бота в основном потоке...")
-        run_vk_bot()
+        logger.info("Запуск Telegram бота в основном потоке...")
+        run_telegram_bot()
     except KeyboardInterrupt:
         logger.info("Получен сигнал прерывания, завершаем работу...")
     except Exception as e:
-        logger.error(f"Ошибка в VK боте: {e}", exc_info=True)
+        logger.error(f"Ошибка в Telegram боте: {e}", exc_info=True)
     finally:
         logger.info("Оба бота остановлены")
 

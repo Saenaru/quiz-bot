@@ -1,12 +1,16 @@
 import logging
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+sys.path.insert(0, project_root)
+sys.path.insert(0, current_dir)
+
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
-from .config import VK_TOKEN
-from . import handlers
-
+from config import VK_TOKEN
+import handlers
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

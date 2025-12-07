@@ -2,6 +2,36 @@
 
 Бот для проведения викторин с вопросами из текстовых файлов. Пользователи могут получать случайные вопросы, отвечать на них и отслеживать свою статистику.
 
+## Ссылки на ботов
+
+### 🤖 Telegram бот
+**[Telegram: @QuizTrainingTGbot](https://t.me/QuizTrainingTGbot)** - ищите `@QuizTrainingTGbot` в Telegram
+
+### 👥 VK бот
+**[Группа VK с ботом](https://vk.com/club232927626)** - напишите "Начать" в сообщениях группы
+
+
+## Структура проекта
+/opt/quiz-bot/
+├── .env # Переменные окружения (токены)
+├── quiz_bot.db # База данных SQLite
+├── requirements.txt # Зависимости Python
+├── parse_questions.py # Парсер вопросов из файлов
+├── run_both.py # Скрипт запуска обоих ботов
+├── tg_bot/ # Telegram бот
+│ ├── main.py
+│ ├── config.py
+│ ├── handlers.py
+│ └── keyboards.py
+├── vk_bot/ # VK бот
+│ ├── main.py
+│ ├── config.py
+│ ├── handlers.py
+│ └── keyboards.py
+└── shared/ # Общие модули
+├── init.py
+└── database.py
+
 ## 1. Клонирование и установка зависимостей
 ```sh
 # Клонировать репозиторий
@@ -34,5 +64,13 @@ DB_FILE=quiz_bot.db
 
 ## Запуск бота
 ```sh
-python main.py
+# Запуск обоих ботов одновременно
+python run_both.py
+
+# Или запуск отдельно
+# Telegram бот:
+python tg_bot/main.py
+
+# VK бот:
+python vk_bot/main.py
 ```
